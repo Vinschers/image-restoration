@@ -11,7 +11,7 @@ import numpy_gd
 import torch_gd
 
 
-def gradient_descent(F, dF, expected, x0, tau, delta=None, max_iter=None):
+def gradient_descent(F, dF, expected, x0, tau):
     if isinstance(x0, np.ndarray):
         return numpy_gd.gradient_descent(F, dF, expected, x0, tau)
     return torch_gd.gradient_descent(F, expected, x0, tau)
@@ -41,23 +41,27 @@ def square_mask(length):
 
 
 def main():
-    lambda_ = 0.3
+    img_path = "experiments/lena.tif"
+    noise = 4
+    lambda_ = 0.01
 
-    original_img = get_img_ndarray("experiments/room.png")
-    # original_img = get_img_tensor("experiments/room.png", torch.device("mps" if torch.backends.mps.is_available() else "cpu"))
+    print(f"lambda = {lambda_}")
 
-    func = denoise()
-    # func = blur(original_img, "blur-kernels/levin1.txt")
+    # original_img = get_img_ndarray(img_path)
+    original_img = get_img_tensor(img_path, torch.device("mps" if torch.backends.mps.is_available() else "cpu"))
+
+    # func = denoise()
+    func = blur(original_img, "blur-kernels/levin1.txt")
     # func = square_mask(32)
 
-    img = func(original_img) + get_noise(original_img, 50)
+    img = func(original_img) + get_noise(original_img, noise)
 
-    analytical_img = analytical_tychonov(img, lambda_)
+    # analytical_img = analytical_tychonov(img, lambda_)
 
     # F, dF, tau = tychonov(img, lambda_, func)
     F, dF, tau = total_variation(img, 1e-2, lambda_, func)
 
-    restored_img, Y, diffs = gradient_descent(F, dF, analytical_img, img, tau)
+    restored_img, Y, diffs = gradient_descent(F, dF, original_img, img, tau)
 
     plot_info(original_img, img, restored_img, Y, diffs)
 

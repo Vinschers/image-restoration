@@ -1,16 +1,19 @@
 from utils import sum, sqrt, squared_norm
-from differentiation import Dx, Dy, grad, laplacian
+from differentiation import grad, laplacian
 
 
 def F_TV(x, v, epsilon, lambda_, func):
     data_fidelity = sum((func(x) - v) ** 2) / 2
-    regularization = lambda_ * sum(sqrt(epsilon ** 2 + Dx(x) ** 2 + Dy(x) ** 2))
+    regularization = lambda_ * sum(sqrt(epsilon**2 + grad(x) ** 2))
 
     return data_fidelity + regularization
 
 
 def dF_TV(x, v, epsilon, lambda_):
-    return x - v - lambda_ * laplacian(x) / sqrt(epsilon ** 2 + squared_norm(grad(x)))
+    data_fidelity = x - v
+    regularization = lambda_ * laplacian(x) / sqrt(epsilon ** 2 + squared_norm(grad(x)))
+
+    return data_fidelity - regularization
 
 
 def total_variation(img, epsilon, lambda_, func):

@@ -30,7 +30,4 @@ def gradient_descent(f, expected, x0, tau=2e-2, delta=1e-5, max_iter=1_000):
 
         iters += 1
 
-        if iters % 100 == 0:
-            print(f"{iters = }")
-
     return x.detach(), y, diffs

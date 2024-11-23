@@ -11,6 +11,7 @@ def F_TV(x, v, epsilon, lambda_, func):
 
 def dF_TV(x, v, epsilon, lambda_):
     data_fidelity = x - v
+
     regularization = lambda_ * laplacian(x) / sqrt(epsilon ** 2 + squared_norm(grad(x)))
 
     return data_fidelity - regularization

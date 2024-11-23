@@ -3,7 +3,7 @@ import torch
 from utils import diff
 
 
-def gradient_descent(f, expected, x0, tau=2e-2, delta=1e-5, max_iter=1_000):
+def gradient_descent(f, df, expected, x0, tau=2e-2, delta=1e-5, max_iter=250):
     x = x0.clone().requires_grad_(True)
     print(f"{tau = }")
     optim = torch.optim.SGD([x], lr=tau)
@@ -24,6 +24,8 @@ def gradient_descent(f, expected, x0, tau=2e-2, delta=1e-5, max_iter=1_000):
 
         loss.backward()
         optim.step()
+
+        # print(x.grad - df(x.clone()))
 
         if diff(x_prev, x).item() < delta:
             break

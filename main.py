@@ -14,7 +14,7 @@ import torch_gd
 def gradient_descent(F, dF, expected, x0, tau):
     if isinstance(x0, np.ndarray):
         return numpy_gd.gradient_descent(F, dF, expected, x0, tau)
-    return torch_gd.gradient_descent(F, expected, x0, tau)
+    return torch_gd.gradient_descent(F, dF, expected, x0, tau)
 
 
 def denoise():
@@ -41,9 +41,9 @@ def square_mask(length):
 
 
 def main():
-    img_path = "experiments/lena.tif"
+    img_path = "experiments/moon.jpg"
     noise = 4
-    lambda_ = 0.01
+    lambda_ = 0.02
 
     print(f"lambda = {lambda_}")
 

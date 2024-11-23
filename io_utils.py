@@ -79,7 +79,7 @@ def plot_info(original_img, img, restored_img, Y=None, diff=None, save=False):
         restored_img = restored_img.cpu().numpy()
 
     img = clip(img, 0, 1)
-    restored_img = normalize(restored_img)
+    restored_img = clip(restored_img, 0, 1)
 
     if len(original_img.shape) > 2:
         axs[0, 0].imshow(original_img)

@@ -1,8 +1,9 @@
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
 
 from io_utils import get_img_tensor, get_img_ndarray, get_noise, get_kernel, plot_info
-from utils import fft, convolve, add_dims
+from utils import PSNR, fft, convolve, add_dims
 
 from tychonov import analytical_tychonov, tychonov
 from total_variation import total_variation
@@ -11,10 +12,10 @@ import numpy_gd
 import torch_gd
 
 
-def gradient_descent(F, dF, expected, x0, tau):
+def gradient_descent(F, dF, expected, x0, tau, max_iter=250):
     if isinstance(x0, np.ndarray):
-        return numpy_gd.gradient_descent(F, dF, expected, x0, tau)
-    return torch_gd.gradient_descent(F, dF, expected, x0, tau)
+        return numpy_gd.gradient_descent(F, dF, expected, x0, tau, max_iter=max_iter)
+    return torch_gd.gradient_descent(F, dF, expected, x0, tau, max_iter=max_iter)
 
 
 def denoise():
@@ -41,27 +42,25 @@ def square_mask(length):
 
 
 def main():
-    img_path = "experiments/moon.jpg"
-    noise = 4
-    lambda_ = 0.02
-
-    print(f"lambda = {lambda_}")
+    img_path = "experiments/lena.tif"
+    noise = 30
 
     # original_img = get_img_ndarray(img_path)
     original_img = get_img_tensor(img_path, torch.device("mps" if torch.backends.mps.is_available() else "cpu"))
 
-    # func = denoise()
-    func = blur(original_img, "blur-kernels/levin1.txt")
+    func = denoise()
+    # func = blur(original_img, "blur-kernels/levin7.txt")
     # func = square_mask(32)
 
     img = func(original_img) + get_noise(original_img, noise)
 
     # analytical_img = analytical_tychonov(img, lambda_)
 
-    # F, dF, tau = tychonov(img, lambda_, func)
-    F, dF, tau = total_variation(img, 1e-2, lambda_, func)
+    F, dF, tau = tychonov(img, 3, func)
+    F, dF, tau = total_variation(img, 1e-2, 0.3, func)
 
-    restored_img, Y, diffs = gradient_descent(F, dF, original_img, img, tau)
+    restored_img, Y, diffs = gradient_descent(F, dF, original_img, img, tau, 100)
+
 
     plot_info(original_img, img, restored_img, Y, diffs)
 

@@ -31,7 +31,7 @@ def u_chapeau(v, lambda_):
 def analytical_tychonov(img, lambda_):
     img_fft = fft(img)
     u = u_chapeau(img_fft, lambda_)
-    return normalize(ifft(u))
+    return ifft(u)
 
 
 def dF_tychonov(x, v, lambda_):
@@ -52,6 +52,6 @@ def tychonov(img, lambda_, func):
     def dF(x):
         return dF_tychonov(x, img, lambda_)
 
-    L = 8 * lambda_
+    L = 1 + 16 / lambda_
     tau = 0.1 / L
     return F, dF, tau

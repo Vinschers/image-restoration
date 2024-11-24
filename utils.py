@@ -30,6 +30,12 @@ def squared_norm(x):
     return sum(x ** 2)
 
 
+def log10(x):
+    if isinstance(x, np.ndarray):
+        return np.log10(x)
+    return torch.log10(x)
+
+
 def clip(x, a, b):
     if isinstance(x, np.ndarray):
         return np.clip(x, a, b)
@@ -64,6 +70,14 @@ def diff(img1, img2):
 def RMSE(img1, img2):
     rmse = sum((img1 - img2) ** 2) / (img1.shape[0] * img1.shape[1])
     return sqrt(rmse)
+
+
+def PSNR(img1, img2):
+    psnr = 20 * log10(img1.max() / RMSE(img1, img2))
+
+    if isinstance(psnr, torch.Tensor):
+        return psnr.item()
+    return psnr
 
 
 def add_dims(x, dims):

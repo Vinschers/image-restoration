@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from utils import sin, sum, squared_norm, fft, ifft, normalize, add_dims
+from utils import sin, sum, squared_norm, fft, ifft, add_dims
 from differentiation import grad, laplacian
 
 
@@ -53,5 +53,5 @@ def tychonov(img, lambda_, func):
         return dF_tychonov(x, img, lambda_)
 
     L = 1 + 16 / lambda_
-    tau = 0.1 / L
+    tau = 1.9 / L
     return F, dF, tau

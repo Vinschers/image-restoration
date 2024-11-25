@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
-from io_utils import get_img_tensor, get_img_ndarray, get_noise, get_kernel, plot_info
+from io_utils import get_img_tensor, get_img_ndarray, get_noise, get_kernel, plot_info, save
 from utils import PSNR, fft, convolve, add_dims
 
 from tychonov import analytical_tychonov, tychonov
@@ -42,27 +42,32 @@ def square_mask(length):
 
 
 def main():
-    img_path = "experiments/lena.tif"
-    noise = 30
+    img_path = "experiments/bat512.tif"
+    noise = 32
 
     # original_img = get_img_ndarray(img_path)
     original_img = get_img_tensor(img_path, torch.device("mps" if torch.backends.mps.is_available() else "cpu"))
 
     func = denoise()
-    # func = blur(original_img, "blur-kernels/levin7.txt")
+    # func = blur(original_img, "blur-kernels/levin6.txt")
     # func = square_mask(32)
 
     img = func(original_img) + get_noise(original_img, noise)
 
-    # analytical_img = analytical_tychonov(img, lambda_)
+    analytical_img = analytical_tychonov(img, 1)
 
-    F, dF, tau = tychonov(img, 3, func)
-    F, dF, tau = total_variation(img, 1e-2, 0.3, func)
+    F, dF, tau = tychonov(img, 1, func)
+    # F, dF, tau = total_variation(img, 1e-2, 0.003, func)
 
-    restored_img, Y, diffs = gradient_descent(F, dF, original_img, img, tau, 100)
+    restored_img, Y, diffs = gradient_descent(F, dF, analytical_img, img, tau, 100)
 
+    # plot_info(original_img, img, restored_img, Y, diffs)
 
-    plot_info(original_img, img, restored_img, Y, diffs)
+    save(restored_img, "restored.png")
+    plt.plot(Y, label="error", color="blue")
+    plt.plot(diffs, label="difference", color="orange")
+    plt.title("Difference to solution")
+    plt.legend()
 
 
 if __name__ == "__main__":

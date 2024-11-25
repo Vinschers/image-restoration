@@ -68,12 +68,13 @@ def diff(img1, img2):
 
 
 def RMSE(img1, img2):
-    rmse = sum((img1 - img2) ** 2) / (img1.shape[0] * img1.shape[1])
+    M, N = img1.shape[:2]
+    rmse = sum((img1 - img2) ** 2) / (M * N)
     return sqrt(rmse)
 
 
-def PSNR(img1, img2):
-    psnr = 20 * log10(img1.max() / RMSE(img1, img2))
+def PSNR(u, v):
+    psnr = 20 * log10(u.max() / RMSE(u, v))
 
     if isinstance(psnr, torch.Tensor):
         return psnr.item()

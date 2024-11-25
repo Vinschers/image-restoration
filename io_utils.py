@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from skimage import io
 
 
-from utils import normalize, sum, clip, add_dims
+from utils import sum, clip, add_dims
 
 
 def get_img_ndarray(img_path):
@@ -111,3 +111,13 @@ def plot_info(original_img, img, restored_img, Y=None, diff=None, save=False):
 
     plt.tight_layout()
     plt.show()
+
+
+def save(img, path):
+    if isinstance(img, torch.Tensor):
+        img = img.detach().cpu()
+
+    if len(img.shape) == 3:
+        plt.imsave(path, clip(img, 0, 1))
+    else:
+        plt.imsave(path, clip(img, 0, 1), cmap="gray")

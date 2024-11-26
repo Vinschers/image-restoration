@@ -2,6 +2,12 @@ import numpy as np
 import torch
 
 
+"""
+This file contains many common functions used in the project.
+They were implemented in such a way that they can be used with both numpy arrays and torch tensors.
+"""
+
+
 def sum(x):
     if isinstance(x, np.ndarray):
         return np.sum(x)
@@ -44,7 +50,7 @@ def clip(x, a, b):
 
 def fft(img):
     if isinstance(img, np.ndarray):
-        return np.fft.fft2(img, axes=(0, 1))
+        return np.fft.fft2(img, axes=(0, 1)) # The axes (or dim) parameter is important: it ensures that the FFT is computed in each color channel.
     return torch.fft.fft2(img, dim=(0, 1))
 
 
@@ -64,7 +70,11 @@ def normalize(img):
 
 
 def diff(img1, img2):
-    return (abs(img1 - img2)).max()
+    d = (abs(img1 - img2)).max()
+
+    if isinstance(d, torch.Tensor):
+        return d.item()
+    return d
 
 
 def RMSE(img1, img2):
@@ -81,6 +91,10 @@ def PSNR(u, v):
     return psnr
 
 
+"""
+This function adds dimensions to a torch tensor or numpy array.
+This is done in order to use broadcast capabilities correctly throughtout our code.
+"""
 def add_dims(x, dims):
     for _ in range(dims):
         if isinstance(x, np.ndarray):

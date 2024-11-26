@@ -15,16 +15,19 @@ import torch_gd
 def gradient_descent(F, dF, expected, x0, tau, max_iter=250):
     if isinstance(x0, np.ndarray):
         return numpy_gd.gradient_descent(F, dF, expected, x0, tau, max_iter=max_iter)
-    return torch_gd.gradient_descent(F, dF, expected, x0, tau, max_iter=max_iter)
+    return torch_gd.gradient_descent(F, expected, x0, tau, max_iter=max_iter)
 
 
+"""
+In the case of denoise, we use the identity function inside the data fidelity term.
+"""
 def denoise():
     return lambda x: x
 
 
 def blur(img, kernel_path):
     kernel = get_kernel(img, kernel_path)
-    fft_kernel = fft(kernel)
+    fft_kernel = fft(kernel) # We pre-compute the FFT of the kernel to avoid unnecessary overhead.
 
     fft_kernel = add_dims(fft_kernel, len(img.shape[2:]))
 
@@ -35,7 +38,7 @@ def square_mask(length):
     def apply_mask(x):
         N, M = x.shape[0], x.shape[1]
         y = x.clone()
-        y[(N - length) // 2 : (N - length) // 2 + length, (M - length) // 2 : (M - length) // 2 + length, :] = 0
+        y[(N - length) // 2 : (N - length) // 2 + length, (M - length) // 2 : (M - length) // 2 + length, :] = 0 # Black square in the middle
         return y
 
     return apply_mask
@@ -45,8 +48,10 @@ def main():
     img_path = "experiments/bat512.tif"
     noise = 32
 
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+
     # original_img = get_img_ndarray(img_path)
-    original_img = get_img_tensor(img_path, torch.device("mps" if torch.backends.mps.is_available() else "cpu"))
+    original_img = get_img_tensor(img_path, device)
 
     func = denoise()
     # func = blur(original_img, "blur-kernels/levin6.txt")
@@ -61,7 +66,7 @@ def main():
 
     restored_img, Y, diffs = gradient_descent(F, dF, analytical_img, img, tau, 100)
 
-    # plot_info(original_img, img, restored_img, Y, diffs)
+    plot_info(original_img, img, restored_img, Y, diffs)
 
     save(restored_img, "restored.png")
     plt.plot(Y, label="error", color="blue")

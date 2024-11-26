@@ -7,6 +7,9 @@ from skimage import io
 from utils import sum, clip, add_dims
 
 
+"""
+For the next 2 functions, we suppose the images are in the range [0, 1]
+"""
 def get_img_ndarray(img_path):
     if not img_path:
         exit(0)
@@ -35,6 +38,10 @@ def get_noise(img, strength):
     return noise
 
 
+"""
+This function gets the motion kernel from a .txt file.
+It is based on the code provided my Professor Leclaire.
+"""
 def get_kernel(img, kernel_path):
     N, M = img.shape[:2]
 
@@ -65,7 +72,10 @@ def plot(img):
     plt.show()
 
 
-def plot_info(original_img, img, restored_img, Y=None, diff=None, save=False):
+"""
+This function plots 4 images: the original, the altered image, the restored image and the difference between the two, with the error function curve
+"""
+def plot_info(original_img, img, restored_img, Y=None, diff=None):
     _, axs = plt.subplots(2, 2, figsize=(10, 10))
 
 
@@ -78,6 +88,7 @@ def plot_info(original_img, img, restored_img, Y=None, diff=None, save=False):
     if isinstance(restored_img, torch.Tensor):
         restored_img = restored_img.cpu().numpy()
 
+    # We clip the images to the range [0, 1]. This has a better visual result than normalizing the images.
     img = clip(img, 0, 1)
     restored_img = clip(restored_img, 0, 1)
 
@@ -89,10 +100,6 @@ def plot_info(original_img, img, restored_img, Y=None, diff=None, save=False):
         axs[0, 0].imshow(original_img, cmap="gray")
         axs[0, 1].imshow(img, cmap="gray")
         axs[1, 0].imshow(restored_img, cmap="gray")
-
-    if save:
-        plt.imsave("moon_mask.png", img)
-        plt.imsave("moon_tv_restored.png", restored_img)
 
     axs[0, 0].axis("off")
     axs[0, 0].set_title("Expected solution")
@@ -113,6 +120,9 @@ def plot_info(original_img, img, restored_img, Y=None, diff=None, save=False):
     plt.show()
 
 
+"""
+Saves an image to the specified path, clipping it to the range [0, 1]
+"""
 def save(img, path):
     if isinstance(img, torch.Tensor):
         img = img.detach().cpu()

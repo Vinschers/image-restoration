@@ -3,12 +3,12 @@ import torch
 from utils import diff
 
 
-def gradient_descent(f, df, expected, x0, tau=2e-2, delta=1e-5, max_iter=100):
+def gradient_descent(F, expected, x0, tau=2e-2, delta=1e-5, max_iter=100):
     x = x0.clone().requires_grad_(True)
     print(f"{tau = }")
     optim = torch.optim.SGD([x], lr=tau)
 
-    base_f = f(x0).item()
+    base_f = F(x0).item()
     y = []
     diffs = []
     iters = 0
@@ -18,16 +18,15 @@ def gradient_descent(f, df, expected, x0, tau=2e-2, delta=1e-5, max_iter=100):
 
         x_prev = x.clone()
 
-        loss = f(x)
+        loss = F(x)
+
         y.append(loss.item() / base_f)
-        diffs.append(diff(x, expected).item())
+        diffs.append(diff(x, expected))
 
         loss.backward()
         optim.step()
 
-        # print(x.grad - df(x.clone()))
-
-        if diff(x_prev, x).item() < delta:
+        if diff(x_prev, x) < delta:
             break
 
         iters += 1

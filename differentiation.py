@@ -2,6 +2,9 @@ import numpy as np
 import torch
 
 
+"""
+We use the roll function to compute the derivatives because we assume that the image is periodic.
+"""
 def D(img, axis):
     if isinstance(img, np.ndarray):
         return np.roll(img, -1, axis) - img
@@ -36,5 +39,8 @@ def grad(img):
     return torch.stack((Dx(img), Dy(img)), dim=0)
 
 
+"""
+The laplacian is $- \nabla^\top (\nabla I)$.
+"""
 def laplacian(img):
     return -(Dx_transpose(Dx(img)) + Dy_transpose(Dy(img)))

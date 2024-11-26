@@ -5,6 +5,10 @@ from utils import sin, sum, squared_norm, fft, ifft, add_dims
 from differentiation import grad, laplacian
 
 
+"""
+Function L used in the analytical solution.
+In our implementation, this returns a matrix that is later broadcasted to yield the solution.
+"""
 def L(v):
     N, M = v.shape[:2]
 
@@ -34,10 +38,6 @@ def analytical_tychonov(img, lambda_):
     return ifft(u)
 
 
-def dF_tychonov(x, v, lambda_):
-    return x - v - 2 * lambda_ * laplacian(x)
-
-
 def F_tychonov(x, v, lambda_, func):
     data_fidelity = sum((func(x) - v) ** 2) / 2
     regularization = lambda_ * squared_norm(grad(x))
@@ -45,6 +45,16 @@ def F_tychonov(x, v, lambda_, func):
     return data_fidelity + regularization
 
 
+def dF_tychonov(x, v, lambda_):
+    data_fidelity = x - v
+    regularization = - 2 * lambda_ * laplacian(x)
+
+    return data_fidelity + regularization
+
+
+"""
+This is the generator function. Based on the parameters specified, it returns the tychonov error function that has only one input, which is then used in the gradient descent algorithm
+"""
 def tychonov(img, lambda_, func):
     def F(x):
         return F_tychonov(x, img, lambda_, func)

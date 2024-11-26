@@ -17,7 +17,7 @@ def gradient_descent(F, dF, expected, x0, tau, max_iter=250):
         x, y = numpy_gd.gradient_descent(F, dF, x0.shape, x0, tau, max_iter=max_iter)
         diffs = None
     else:
-        x, y, diffs = torch_gd.gradient_descent(F, expected, x0, tau, max_iter=max_iter)
+        x, y, diffs = torch_gd.gradient_descent(F, expected, x0, tau, max_iter=max_iter) # In pytorch, we ignore dF because it automatically computes the gradient.
     return x, y, diffs
 
 

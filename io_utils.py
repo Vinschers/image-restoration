@@ -40,7 +40,7 @@ def get_noise(img, strength):
 
 """
 This function gets the motion kernel from a .txt file.
-It is based on the code provided my Professor Leclaire.
+It is based on the code provided by Professor Leclaire.
 """
 def get_kernel(img, kernel_path):
     N, M = img.shape[:2]

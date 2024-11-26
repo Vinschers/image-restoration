@@ -14,8 +14,11 @@ import torch_gd
 
 def gradient_descent(F, dF, expected, x0, tau, max_iter=250):
     if isinstance(x0, np.ndarray):
-        return numpy_gd.gradient_descent(F, dF, expected, x0, tau, max_iter=max_iter)
-    return torch_gd.gradient_descent(F, expected, x0, tau, max_iter=max_iter)
+        x, y = numpy_gd.gradient_descent(F, dF, x0.shape, x0, tau, max_iter=max_iter)
+        diffs = None
+    else:
+        x, y, diffs = torch_gd.gradient_descent(F, expected, x0, tau, max_iter=max_iter)
+    return x, y, diffs
 
 
 """
@@ -46,33 +49,27 @@ def square_mask(length):
 
 def main():
     img_path = "experiments/bat512.tif"
-    noise = 32
+    noise = 4
 
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
     # original_img = get_img_ndarray(img_path)
     original_img = get_img_tensor(img_path, device)
 
-    func = denoise()
-    # func = blur(original_img, "blur-kernels/levin6.txt")
+    # func = denoise()
+    func = blur(original_img, "blur-kernels/levin6.txt")
     # func = square_mask(32)
 
     img = func(original_img) + get_noise(original_img, noise)
 
-    analytical_img = analytical_tychonov(img, 1)
+    # analytical_img = analytical_tychonov(img, 1)
 
-    F, dF, tau = tychonov(img, 1, func)
-    # F, dF, tau = total_variation(img, 1e-2, 0.003, func)
+    # F, dF, tau = tychonov(img, 1, func)
+    F, dF, tau = total_variation(img, 1e-2, 0.003, func)
 
-    restored_img, Y, diffs = gradient_descent(F, dF, analytical_img, img, tau, 100)
+    restored_img, Y, diffs = gradient_descent(F, dF, original_img, img, tau, 100)
 
     plot_info(original_img, img, restored_img, Y, diffs)
-
-    save(restored_img, "restored.png")
-    plt.plot(Y, label="error", color="blue")
-    plt.plot(diffs, label="difference", color="orange")
-    plt.title("Difference to solution")
-    plt.legend()
 
 
 if __name__ == "__main__":

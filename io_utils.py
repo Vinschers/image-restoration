@@ -110,9 +110,13 @@ def plot_info(original_img, img, restored_img, Y=None, diff=None):
     axs[1, 0].axis("off")  # Hide axes
     axs[1, 0].set_title("Restored image")
 
-    if Y and diff:
+    if Y:
         axs[1, 1].plot(Y, label="error", color="blue")
+
+    if diff:
         axs[1, 1].plot(diff, label="difference", color="orange")
+
+    if Y or diff:
         axs[1, 1].set_title("Difference to solution")
         axs[1, 1].legend()
 

@@ -4,17 +4,16 @@ from copy import deepcopy
 from utils import diff, abs
 
 
-def gradient_descent(F, grad_F, expected, x0, tau=0.01, delta=1e-5, max_iter=1_000):
+def gradient_descent(F, grad_F, x_shape, x_init, tau=0.01, delta=1e-5, max_iter=1_000):
     print(f"{tau = }")
 
-    if isinstance(x0, tuple):
-        x = np.random.rand(*x0)
+    if x_init is None:
+        x = np.random.rand(*x_shape)
     else:
-        x = deepcopy(x0)
+        x = deepcopy(x_init)
 
     base_f = F(x)
-    y = []
-    diffs = []
+    F_values = []
     iters = 0
 
     while iters < max_iter:
@@ -22,11 +21,10 @@ def gradient_descent(F, grad_F, expected, x0, tau=0.01, delta=1e-5, max_iter=1_0
 
         x += delta_x
 
-        y.append(F(x) / base_f)
-        diffs.append(diff(x, expected))
+        F_values.append(F(x) / base_f)
 
         if (abs(delta_x)).max() < delta:
             break
 
         iters += 1
-    return x, y, diffs
+    return x, F_values

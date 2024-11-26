@@ -25,6 +25,9 @@ def L(v):
     return 4 * (X.reshape(N, 1) + Y.reshape(1, M))
 
 
+"""
+Analyticial solution in the Fourier domain.
+"""
 def u_chapeau(v, lambda_):
     L_matrix = 1 + 2 * lambda_ * L(v)
     L_matrix = add_dims(L_matrix, len(v.shape[2:]))
@@ -32,11 +35,18 @@ def u_chapeau(v, lambda_):
     return v / L_matrix
 
 
+"""
+Computes the analytical solution.
+"""
 def analytical_tychonov(img, lambda_):
     img_fft = fft(img)
     u = u_chapeau(img_fft, lambda_)
     return ifft(u)
 
+
+"""
+The following functions are used in the gradient descent algorithm (numerical implementation).
+"""
 
 def F_tychonov(x, v, lambda_, func):
     data_fidelity = sum((func(x) - v) ** 2) / 2
